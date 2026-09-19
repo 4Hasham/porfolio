@@ -32,62 +32,13 @@
     <div id="app">
       <header class="nav">
         <a class="nav__brand icon-cycle" href="#top" aria-label="Hasham Ali — home"></a>
-        <!-- On desktop this wrapper is inert (display: contents — see
-             style.css), so nav__links and nav__skills lay out exactly as
-             direct flex children of .nav, same as before. On mobile it
-             becomes the actual positioned drawer, with the two as flex
-             children stacked in a column — that's what guarantees they
-             divide the drawer's height without overlapping, instead of
-             each guessing a percentage that only happens to fit some
-             screen heights. -->
-        <div class="nav__mobile-panel">
         <nav class="nav__links" aria-label="Primary">
-          <a href="#about" aria-label="About">
-            <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="12" cy="8" r="3.2" />
-              <path d="M5.5 19.5c1.2-3.6 4-5.4 6.5-5.4s5.3 1.8 6.5 5.4" />
-            </svg>
-            <span class="nav__link-text">About</span>
-          </a>
-          <a href="#experience" aria-label="Experience">
-            <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="3.5" y="8" width="17" height="11" rx="1.6" />
-              <path d="M8.5 8V6.2A1.7 1.7 0 0 1 10.2 4.5h3.6A1.7 1.7 0 0 1 15.5 6.2V8" />
-              <path d="M3.5 12.8h17" />
-            </svg>
-            <span class="nav__link-text">Experience</span>
-          </a>
-          <a href="#projects" aria-label="Projects">
-            <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M4 6.8A1.5 1.5 0 0 1 5.5 5.3h4l1.6 2h7.4A1.5 1.5 0 0 1 20 8.8v8.7a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z" />
-            </svg>
-            <span class="nav__link-text">Projects</span>
-          </a>
-          <a href="#interests" aria-label="Interests">
-            <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 19.5s-7-4.35-7-9.2A4 4 0 0 1 12 7.3a4 4 0 0 1 7 3c0 4.85-7 9.2-7 9.2z" />
-            </svg>
-            <span class="nav__link-text">Interests</span>
-          </a>
-          <a href="#contact" aria-label="Contact">
-            <svg class="nav__link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="3.5" y="6" width="17" height="12" rx="1.5" />
-              <path d="M4 7l8 6 8-6" />
-            </svg>
-            <span class="nav__link-text">Contact</span>
-          </a>
+          <a href="#about">About</a>
+          <a href="#experience">Experience</a>
+          <a href="#projects">Projects</a>
+          <a href="#interests">Interests</a>
+          <a href="#contact">Contact</a>
         </nav>
-        <!-- Skills, as a logo marquee living in the nav bar's empty space
-             rather than an in-flow section — it used to sit between About
-             and Experience, but the pinned Experience/Projects/Interests
-             sections cover the full viewport, so anything in normal flow
-             behind them was invisible for as long as the visitor was
-             inside one. Horizontal here; style.css switches it to a
-             vertical strip inside the mobile menu below 860px. -->
-        <div class="nav__skills" aria-hidden="true">
-          <ul class="nav__skills-track" id="skills-list"></ul>
-        </div>
-        </div>
         <button id="nav-burger" class="nav__burger" type="button" aria-label="Toggle menu" aria-expanded="false">
           <span></span><span></span><span></span>
         </button>
@@ -111,14 +62,31 @@
           <p class="photo-credit">Astrophotography — Deosai National Park, Pakistan</p>
         </section>
 
-        <section class="section scroll-stage" id="about">
-          <div class="scroll-stage__sticky">
-            <div class="about-scene">
-              <div class="about-scene__portrait panel">
+        <section class="section" id="about">
+          <div class="section__inner">
+            <h2 class="section__heading"><span class="section__index">01</span>About</h2>
+            <div class="about__grid">
+              <div class="about__portrait panel">
                 <img id="about-portrait-img" src="" alt="" />
               </div>
-              <p class="about-scene__greeting">Hey!</p>
-              <ul class="about-scene__facts about__facts panel">
+              <div class="about__copy panel">
+                <p>
+                  I'm a backend engineer who spent the last four years turning messy, high-stakes
+                  problems — national weather data, disaster-response systems, multi-tenant
+                  platforms — into infrastructure that quietly holds up under pressure. I'm AWS
+                  Certified (Solutions Architect – Associate), and I care more about a system being
+                  understandable six months from now than clever today.
+                </p>
+                <p>
+                  Off the clock, I'm an INFP who reads people quickly and rooms slowly — an empath
+                  by nature, which turns out to be useful for both debugging production incidents
+                  and mentoring the engineers going through them. I recharge outdoors: mountain
+                  biking, long trails, and photography whenever the sky cooperates. Cricket, UFC,
+                  and the gym round out the rest, and if I had to pick a fictional alter ego, it's
+                  Daredevil — someone who turns a limitation into a sharper kind of perception.
+                </p>
+              </div>
+              <ul class="about__facts panel">
                 <li><span>Based in</span>Islamabad, Pakistan</li>
                 <li><span>Focus</span>Node.js · NestJS · AWS</li>
                 <li class="about__facts-cert">
@@ -128,70 +96,41 @@
                 <li><span>Personality</span>INFP · empath</li>
                 <li><span>Off-duty</span>Mountains, cricket, UFC</li>
               </ul>
-              <div class="about-scene__copy panel">
-                <p>
-                  I'm a backend engineer who spent the last four years turning messy, high-stakes
-                  problems — national weather data, disaster-response systems, multi-tenant
-                  platforms — into infrastructure that quietly holds up under pressure. AWS
-                  Certified (Solutions Architect – Associate), and I care more about a system being
-                  understandable six months from now than clever today.
-                </p>
-                <p>
-                  Off the clock: an INFP empath who recharges outdoors — mountain biking, long
-                  trails, photography whenever the sky cooperates. Cricket, UFC, and the gym round
-                  out the rest. Fictional alter ego: Daredevil, someone who turns a limitation into
-                  a sharper kind of perception.
-                </p>
-              </div>
             </div>
           </div>
-          <div class="scroll-stage__snap-marker" aria-hidden="true"></div>
-          <div class="scroll-stage__snap-marker" aria-hidden="true"></div>
         </section>
 
-        <section class="section scroll-stage hscroll" id="experience">
-          <div class="scroll-stage__sticky">
-            <div class="hscroll__label">
-              <span class="hscroll__label-index">02</span>Experience
-              <span class="hscroll__label-count"></span>
-            </div>
-            <div class="hscroll__track" id="timeline-list"></div>
+        <section class="section" id="skills">
+          <div class="section__inner">
+            <h2 class="section__heading"><span class="section__index">02</span>Skills</h2>
+            <ul class="skills" id="skills-list"></ul>
           </div>
-          <div class="scroll-stage__snap-marker" aria-hidden="true"></div>
-          <div class="scroll-stage__snap-marker" aria-hidden="true"></div>
         </section>
 
-        <section class="section scroll-stage hscroll" id="projects">
-          <div class="scroll-stage__sticky">
-            <div class="hscroll__label">
-              <span class="hscroll__label-index">03</span>Projects
-              <span class="hscroll__label-count"></span>
-            </div>
-            <div class="hscroll__track" id="projects-list"></div>
+        <section class="section" id="experience">
+          <div class="section__inner">
+            <h2 class="section__heading"><span class="section__index">03</span>Experience</h2>
+            <ol class="timeline" id="timeline-list"></ol>
           </div>
-          <div class="scroll-stage__snap-marker" aria-hidden="true"></div>
-          <div class="scroll-stage__snap-marker" aria-hidden="true"></div>
-          <div class="scroll-stage__snap-marker" aria-hidden="true"></div>
         </section>
 
-        <section class="section scroll-stage hscroll" id="interests">
-          <div class="scroll-stage__sticky">
-            <div class="hscroll__label">
-              <span class="hscroll__label-index">04</span>Off the Clock
-              <span class="hscroll__label-count"></span>
-            </div>
-            <div class="hscroll__track" id="interests-list"></div>
+        <section class="section" id="projects">
+          <div class="section__inner">
+            <h2 class="section__heading"><span class="section__index">04</span>Projects</h2>
+            <div class="projects" id="projects-list"></div>
           </div>
-          <div class="scroll-stage__snap-marker" aria-hidden="true"></div>
-          <div class="scroll-stage__snap-marker" aria-hidden="true"></div>
-          <div class="scroll-stage__snap-marker" aria-hidden="true"></div>
-          <div class="scroll-stage__snap-marker" aria-hidden="true"></div>
-          <div class="scroll-stage__snap-marker" aria-hidden="true"></div>
+        </section>
+
+        <section class="section" id="interests">
+          <div class="section__inner">
+            <h2 class="section__heading"><span class="section__index">05</span>Off the Clock</h2>
+            <div class="interests" id="interests-list"></div>
+          </div>
         </section>
 
         <section class="section section--contact" id="contact">
           <div class="section__inner">
-            <h2 class="section__heading"><span class="section__index">05</span>Contact</h2>
+            <h2 class="section__heading"><span class="section__index">06</span>Contact</h2>
             <p class="contact__lead">
               Have a system worth building well, or just want to talk mountains and cricket?
               My inbox is open.

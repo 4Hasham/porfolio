@@ -3,12 +3,10 @@
 // only does work when something is actually about to become visible.
 
 export function initScrollReveal() {
-  // Note: About/Experience/Projects/Interests items are excluded here — their
-  // visibility is driven continuously by scroll progress (see scrollStage.js,
-  // aboutScene.js, horizontalScroll.js), not a one-shot enter-the-viewport fade.
-  // The skills rail is excluded too — it's fixed and always on screen from
-  // the start, never "entering" the viewport at all.
-  const targets = document.querySelectorAll('.section__heading, .contact-card');
+  const targets = document.querySelectorAll(
+    '.section__heading, .about__portrait, .about__copy, .about__facts, .skills__item, ' +
+      '.timeline__item, .project-card, .interest-card, .contact-card'
+  );
 
   targets.forEach((target) => target.classList.add('reveal'));
 

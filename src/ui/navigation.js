@@ -1,5 +1,4 @@
-// Mobile menu toggle, "active section" highlighting, and smooth-scrolling
-// for internal links.
+// Mobile menu toggle + "active section" highlighting in the nav bar.
 
 export function initNavigation() {
   const nav = document.querySelector('.nav');
@@ -18,18 +17,6 @@ export function initNavigation() {
     link.addEventListener('click', () => {
       nav.classList.remove('nav--open');
       burger.setAttribute('aria-expanded', 'false');
-    });
-  });
-
-  // html has no `scroll-behavior: smooth` (see style.css for why), so
-  // every internal "jump to section" link — the nav, the hero buttons —
-  // needs its own smooth scroll instead of relying on that.
-  document.querySelectorAll('a[href^="#"]').forEach((link) => {
-    link.addEventListener('click', (event) => {
-      const target = document.querySelector(link.getAttribute('href'));
-      if (!target) return;
-      event.preventDefault();
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   });
 

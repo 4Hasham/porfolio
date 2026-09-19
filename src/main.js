@@ -5,24 +5,12 @@ import { initScrollReveal } from './ui/reveal.js';
 import { initNavigation } from './ui/navigation.js';
 import { initIconCycler } from './ui/iconCycler.js';
 import { hideLoader } from './ui/loader.js';
-import { initHorizontalScrollSections } from './ui/horizontalScroll.js';
-import { initAboutScene } from './ui/aboutScene.js';
-import { startScrollStages } from './ui/scrollStage.js';
 
 // 1. Content first: the page must be readable even if WebGL fails.
 renderContent();
 initNavigation();
 initScrollReveal();
 initIconCycler('.icon-cycle'); // loader mark + nav brand, cycling in sync
-
-// Pinned-section scrollytelling: About's staged reveal, and the horizontal
-// Experience/Projects/Interests sections. Stages register themselves here,
-// then startScrollStages() wires up the single shared scroll/resize listener.
-// The "settle on a stage" behavior is native CSS scroll-snap (see
-// style.css) — not JS — so there's nothing here to drive that part.
-initAboutScene();
-initHorizontalScrollSections();
-startScrollStages();
 
 // 2. The 3D backdrop.
 const canvas = document.getElementById('scene-canvas');
