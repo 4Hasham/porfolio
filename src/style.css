@@ -38,7 +38,22 @@
 }
 
 html {
+  font-size: 18px; /* bumps every rem-based size in the page */
   scroll-behavior: smooth;
+  /* Native CSS scroll-snap, not JS. Two earlier attempts at driving this
+     from JS — a reactive "correct it after the fact" version, then a wheel
+     interceptor — both ended up visibly fighting the visitor's own
+     scrolling (jitter, or scrolling that "wouldn't respond"), because any
+     JS approach either fights native momentum or has to fully block native
+     scroll input to stay in control.
+     `proximity`, not `mandatory`: mandatory reproducibly made scrolling
+     stop responding entirely after the first snap, under repeated testing,
+     even with correct snap points and no position:sticky conflict — a
+     lock is a worse failure than an imperfect settle, so proximity (which
+     never showed that failure) is the safer trade. It only pulls the page
+     to a snap point when a scroll naturally comes to rest near one, rather
+     than forcing every scroll to resolve onto one. */
+  scroll-snap-type: y proximity;
 }
 
 body {
@@ -49,6 +64,7 @@ body {
   font-family: var(--font-body);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden; /* the .hscroll sections translate their track past 100vw */
 }
 
 h1,
@@ -210,6 +226,14 @@ ol {
   color: var(--color-warm);
 }
 
+/* Inert on desktop — its children (nav__links, nav__skills) render as
+   direct flex items of .nav, unaffected by this wrapper's own box. Only
+   matters below 860px, where it becomes the real drawer container; see
+   that media query. */
+.nav__mobile-panel {
+  display: contents;
+}
+
 .nav__links {
   display: flex;
   gap: 2rem;
@@ -223,6 +247,13 @@ ol {
   position: relative;
   padding-bottom: 0.2rem;
   transition: color 0.25s var(--ease);
+}
+
+/* Icons exist for the mobile drawer (a thin icon strip, not a full-width
+   text menu — see the media query below); on desktop the links stay
+   plain text, so the icon is hidden here. */
+.nav__link-icon {
+  display: none;
 }
 
 .nav__links a::after {
@@ -310,12 +341,19 @@ ol {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
   gap: 1.5rem;
-  /* Sized to its content plus breathing room, not to the viewport — a fixed
-     vh-based height leaves a growing empty gap on tall screens no matter
-     how small the fraction. */
-  padding: min(20vh, 10rem) clamp(1.25rem, 4vw, 3rem) 6rem;
+  /* Must fill the full viewport, not just size to its content: About's
+     pinned sticky content (the portrait, the "Hey!" reveal) starts
+     rendering as soon as its section is reached, so if Hero were shorter
+     than the viewport, that content would be visible peeking in below the
+     Hero copy before the visitor ever scrolls — which is exactly the "why
+     is my picture there already" bug this fixes. dvh (not just vh) so
+     mobile browser chrome showing/hiding doesn't leave a gap either. */
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 6rem clamp(1.25rem, 4vw, 3rem);
   max-width: 780px;
   margin: 0 auto;
 }
@@ -328,12 +366,12 @@ ol {
 }
 
 .hero__title {
-  font-size: clamp(2.4rem, 6vw, 4.4rem);
+  font-size: clamp(2.8rem, 7vw, 5.4rem);
   line-height: 1.1;
 }
 
 .hero__subtitle {
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   color: var(--color-ink-soft);
   max-width: 46ch;
 }
@@ -399,6 +437,16 @@ ol {
   padding: clamp(4rem, 10vh, 7rem) clamp(1.25rem, 4vw, 3rem);
 }
 
+/* .scroll-stage sections (About + the .hscroll ones) need to be genuinely
+   full-bleed: horizontalScroll.js sizes and translates things using
+   window.innerWidth/innerHeight directly, so any padding here would inset
+   .scroll-stage__sticky from the real viewport edges and throw that math
+   off. Their content positions its own spacing instead (.hscroll__item's
+   padding, .hscroll__label's offset, .about-scene's own width/margin). */
+.section.scroll-stage {
+  padding: 0;
+}
+
 .section__inner {
   max-width: 1100px;
   margin: 0 auto;
@@ -408,7 +456,7 @@ ol {
   display: flex;
   align-items: baseline;
   gap: 1rem;
-  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-size: clamp(1.9rem, 3.6vw, 2.6rem);
   margin-bottom: 2.5rem;
 }
 
@@ -447,47 +495,74 @@ ol {
    About
    ========================================================================== */
 
-.about__grid {
+.about-scene {
   display: grid;
-  grid-template-columns: 220px 1.2fr 1fr;
-  gap: 2.5rem;
-  align-items: start;
+  grid-template-columns: 200px 1fr 1.3fr;
+  gap: 2rem;
+  align-items: center;
+  width: min(1150px, 92vw);
+  /* .scroll-stage__sticky no longer centers via justify-content (see its
+     rule), so center this flex item the classic way instead. */
+  margin: 0 auto;
 }
 
-.about__portrait {
+.about-scene__portrait {
   border-radius: var(--radius-lg);
   overflow: hidden;
   aspect-ratio: 3 / 4;
+  transform-origin: center center;
+  will-change: transform;
 }
 
-.about__portrait img {
+.about-scene__portrait img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.about__copy,
-.about__facts {
+/* Centered under the (initially big) portrait; fades out as it settles.
+   Positioned absolutely against .scroll-stage__sticky (the nearest
+   positioned ancestor, since .about-scene itself isn't positioned) — that
+   box is exactly the pinned viewport while this section is active, which
+   is the same coordinate space aboutScene.js's viewport-space math uses for
+   the big portrait. Its `top` and `transform` (centering + upward drift)
+   are set entirely from JS. */
+.about-scene__greeting {
+  position: absolute;
+  left: 50%;
+  margin: 0;
+  width: max-content;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
+  color: var(--color-ink);
+  pointer-events: none;
+}
+
+.about-scene__copy,
+.about-scene__facts {
   border-radius: var(--radius-lg);
-  padding: clamp(1.5rem, 3vw, 2.25rem);
+  padding: clamp(1.1rem, 2.2vw, 1.6rem);
+  will-change: opacity, transform;
 }
 
-.about__copy p {
+.about-scene__copy p {
   color: var(--color-ink-soft);
+  font-size: 0.92rem;
+  line-height: 1.5;
 }
 
-.about__copy p + p {
-  margin-top: 1.1rem;
+.about-scene__copy p + p {
+  margin-top: 0.75rem;
 }
 
 .about__facts li {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
-  padding: 0.85rem 0;
+  padding: 0.6rem 0;
   border-bottom: 1px solid var(--panel-border);
-  font-size: 0.95rem;
+  font-size: 0.88rem;
 }
 
 .about__facts li:last-child {
@@ -503,208 +578,301 @@ ol {
 }
 
 .about__facts-cert img {
-  height: 72px;
-  width: 72px;
+  height: 52px;
+  width: 52px;
   margin-top: 0.3rem;
   border-radius: 10px;
 }
 
 /* ==========================================================================
-   Skills
+   Skills — a logo marquee living in the nav bar's own empty space (past
+   the nav links, before the — desktop-only — right edge), horizontal on
+   desktop. Below 860px it becomes a vertical strip docked to the right
+   edge of the slide-out mobile menu instead (see the media query below),
+   since the nav bar itself has no spare room there once the burger shows.
+   Not tied to scroll position at all: the pinned Experience/Projects/
+   Interests sections cover the full viewport while active, so anything
+   living in normal document flow between them would be invisible for as
+   long as the visitor is inside one of those — the nav bar, fixed and
+   always on top, doesn't have that problem.
    ========================================================================== */
 
-.skills {
+.nav__skills {
+  width: clamp(170px, 22vw, 360px);
+  height: 2.25rem;
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+.nav__skills-track {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
+  align-items: center;
+  gap: 1.75rem;
+  width: max-content;
+  animation: nav-skills-scroll-x 26s linear infinite;
 }
 
-.skills__item {
-  padding: 0.65rem 1.1rem;
-  border-radius: 999px;
-  font-size: 0.9rem;
-  color: var(--color-ink-soft);
-  transition: border-color 0.3s var(--ease), color 0.3s var(--ease), transform 0.3s var(--ease);
+.nav__skills-item {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  opacity: 0.85;
 }
 
-.skills__item:hover {
-  border-color: var(--color-warm);
-  color: var(--color-ink);
-  transform: translateY(-2px);
+.nav__skills-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+@keyframes nav-skills-scroll-x {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    /* Exactly half: the track holds two back-to-back copies of the skill
+       list (see render.js), so this lands precisely back on a repeat of
+       the start with no visible seam. */
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes nav-skills-scroll-y {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
 }
 
 /* ==========================================================================
-   Timeline
+   Scroll stage — shared shell for the pinned, viewport-height sections
+   (About's staged reveal, and every .hscroll horizontal section below).
+   The section's total scrollable height comes from real elements: the
+   sticky box itself (100vh) plus one .scroll-stage__snap-marker (100vh)
+   per additional stage — no JS-computed height needed.
    ========================================================================== */
 
-.timeline {
+.scroll-stage {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
-  padding-left: 2rem;
+  /* This stage's first snap point. Deliberately on the section itself — a
+     plain, non-positioned block — rather than on .scroll-stage__sticky:
+     scroll-snap-align on a position:sticky element is unreliable across
+     browsers and reproducibly locked scrolling in place under testing. */
+  scroll-snap-align: start;
 }
 
-.timeline::before {
-  content: '';
+.scroll-stage__sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-x: hidden; /* still clips the horizontally-sliding .hscroll__track */
+  overflow-y: auto; /* safety net: on a short/narrow screen, About's stacked
+    portrait+facts+copy can add up to more than one viewport tall — this
+    keeps the overflow reachable by scrolling in place instead of silently
+    clipping it. A no-op wherever content already fits (i.e. every hscroll
+    item, and About on wider screens). */
+  display: flex;
+  align-items: center;
+  /* No justify-content: center here — .hscroll__track is deliberately many
+     viewport-widths wide (one per item), and centering a flex child that
+     much wider than its container shifts its untransformed start position
+     left by (container - child) / 2, which then stacks with the JS-applied
+     translateX in horizontalScroll.js and throws off every calculation.
+     About's single (viewport-or-narrower) child centers itself instead,
+     via the width/margin on .about-scene. */
+}
+
+/* Invisible spacers giving each item after the first its own 100vh of
+   scrollable space (the sticky box provides the first one). Their
+   offsetTop doubles as a settle point for ui/snapScroll.js. */
+.scroll-stage__snap-marker {
+  height: 100vh;
+  scroll-snap-align: start;
+}
+
+.hscroll__label {
   position: absolute;
-  left: 5px;
-  top: 6px;
-  bottom: 6px;
-  width: 1px;
-  background: linear-gradient(var(--color-warm), var(--color-blue-deep));
+  top: clamp(5.5rem, 10vh, 7rem);
+  left: clamp(1.25rem, 4vw, 3rem);
+  z-index: 2;
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+  color: var(--color-ink);
+}
+
+.hscroll__label-index {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--color-warm-soft);
+  letter-spacing: 0.1em;
+}
+
+.hscroll__label-count {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--color-ink-faint);
+  margin-left: 0.5rem;
+}
+
+.hscroll__track {
+  display: flex;
+  height: 100%;
+  will-change: transform;
+}
+
+.hscroll__item {
+  flex: none;
+  width: 100vw;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(2rem, 6vw, 5rem);
+  transition: opacity 0.1s linear;
+  will-change: opacity, transform;
+}
+
+/* ==========================================================================
+   Experience (horizontal slides)
+   ========================================================================== */
+
+.timeline-slide__inner {
+  max-width: 640px;
+  padding: clamp(2rem, 4vw, 3rem);
+  border-radius: var(--radius-lg);
+}
+
+.timeline-slide__index {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  color: var(--color-warm-soft);
   opacity: 0.5;
 }
 
-.timeline__item {
-  position: relative;
-}
-
-.timeline__marker {
-  position: absolute;
-  left: -2rem;
-  top: 6px;
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background: var(--color-warm);
-  box-shadow: 0 0 0 4px rgba(255, 180, 105, 0.15);
-}
-
-.timeline__period {
-  font-size: 0.8rem;
+.timeline-slide__period {
+  margin-top: 1rem;
+  font-size: 0.95rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: var(--color-warm-soft);
-  margin-bottom: 0.35rem;
 }
 
-.timeline__role {
-  font-size: 1.25rem;
+.timeline-slide__role {
+  margin-top: 0.5rem;
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  line-height: 1.15;
 }
 
-.timeline__org {
+.timeline-slide__org {
+  margin-top: 0.5rem;
   color: var(--color-ink-faint);
-  font-size: 0.9rem;
-  margin-top: 0.2rem;
+  font-size: 1.1rem;
 }
 
-.timeline__summary {
-  margin-top: 0.75rem;
+.timeline-slide__summary {
+  margin-top: 1.5rem;
   color: var(--color-ink-soft);
-  max-width: 65ch;
+  font-size: 1.15rem;
+  max-width: 60ch;
 }
 
 /* ==========================================================================
    Projects
    ========================================================================== */
 
-.projects {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  align-items: start;
-}
-
-.project-card {
+.project-slide__inner {
+  display: flex;
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  width: min(1100px, 100%);
+  padding: clamp(1.5rem, 3vw, 2.5rem);
   border-radius: var(--radius-lg);
-  overflow: hidden;
-  transition: transform 0.4s var(--ease), border-color 0.4s var(--ease);
+  transition: border-color 0.4s var(--ease);
 }
 
-.project-card:hover {
-  transform: translateY(-4px);
+a.project-slide__inner:hover {
   border-color: var(--color-warm);
 }
 
-.project-card__image {
-  aspect-ratio: 21 / 10;
+.project-slide__image {
+  flex: 1 1 45%;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
+  border-radius: var(--radius-md);
   background: rgba(0, 0, 0, 0.25);
 }
 
-.project-card__image img {
+.project-slide__image img {
   width: 100%;
   height: 100%;
   object-fit: contain;
   display: block;
-  transition: transform 0.5s var(--ease);
 }
 
-.project-card:hover .project-card__image img {
-  transform: scale(1.04);
+.project-slide__body {
+  flex: 1 1 55%;
+  min-width: 0;
 }
 
-.project-card__body {
-  padding: 1.75rem;
-}
-
-.project-card__tag {
-  font-size: 0.75rem;
+.project-slide__tag {
+  font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--color-warm-soft);
 }
 
-.project-card__name {
-  font-size: 1.35rem;
-  margin-top: 0.5rem;
+.project-slide__name {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  margin-top: 0.6rem;
 }
 
-.project-card__description {
-  margin-top: 0.85rem;
+.project-slide__description {
+  margin-top: 1rem;
   color: var(--color-ink-soft);
-  font-size: 0.95rem;
+  font-size: 1.1rem;
 }
 
-.project-card__stack {
+.project-slide__stack {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-top: 1.25rem;
+  margin-top: 1.5rem;
 }
 
-.project-card__stack li {
-  font-size: 0.78rem;
-  padding: 0.3rem 0.7rem;
+.project-slide__stack li {
+  font-size: 0.85rem;
+  padding: 0.35rem 0.8rem;
   border-radius: 999px;
   background: rgba(111, 143, 219, 0.15);
   color: var(--color-ink-soft);
 }
 
 /* ==========================================================================
-   Interests
+   Interests (horizontal slides)
    ========================================================================== */
 
-.interests {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.25rem;
-  align-items: start;
+.interest-slide__inner {
+  text-align: center;
+  max-width: 520px;
+  padding: clamp(2.5rem, 5vw, 4rem);
+  border-radius: var(--radius-lg);
 }
 
-.interest-card {
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  transition: transform 0.4s var(--ease), border-color 0.4s var(--ease);
+.interest-slide__label {
+  font-size: clamp(2rem, 4.5vw, 3rem);
 }
 
-.interest-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--color-blue);
-}
-
-.interest-card__body {
-  padding: 1.5rem;
-}
-
-.interest-card__label {
-  font-size: 1.05rem;
-}
-
-.interest-card__detail {
-  margin-top: 0.6rem;
-  font-size: 0.88rem;
+.interest-slide__detail {
+  margin-top: 1.25rem;
+  font-size: 1.15rem;
   color: var(--color-ink-soft);
 }
 
@@ -767,42 +935,245 @@ a.contact-card:hover {
    ========================================================================== */
 
 @media (max-width: 860px) {
-  .about__grid,
-  .projects,
-  .interests,
   .contact__grid {
     grid-template-columns: 1fr;
   }
 
-  /* On desktop the portrait's width comes from its 220px grid column; once
+  /* About stops being a pinned, scroll-driven reveal here (see
+     aboutScene.js, which skips its whole scroll-stage setup below this
+     breakpoint) and becomes a plain static card instead: the "big
+     portrait shrinking into place while panels fade in" animation relied
+     on several separately-transformed, partly absolutely-positioned
+     pieces staying in sync, which just read as jerky and unanchored on an
+     actual phone instead of polished. A normal stacked layout that
+     scrolls past like any other content sidesteps that entirely — and
+     since it's no longer squeezed into a fixed 100vh-per-stage box, text
+     can be sized for comfortable reading instead of fighting for space. */
+  #about.scroll-stage {
+    height: auto;
+  }
+
+  #about .scroll-stage__sticky {
+    position: static;
+    height: auto;
+    overflow: visible;
+    display: block;
+    padding: 4.5rem clamp(1.25rem, 4vw, 2rem) 3.5rem;
+  }
+
+  #about .scroll-stage__snap-marker {
+    display: none;
+  }
+
+  .about-scene {
+    grid-template-columns: 1fr;
+    row-gap: 1.1rem;
+    text-align: center;
+    width: 100%;
+  }
+
+  /* On desktop the portrait's width comes from its 240px grid column; once
      the grid collapses to one column it would otherwise stretch full-width
-     at its tall 3:4 aspect ratio, so cap and center it here instead. */
-  .about__portrait {
-    max-width: 220px;
+     at its tall 3:4 aspect ratio, so cap it here instead.
+     `width`, not `max-width`: with only a max-width, this box's actual
+     width was being resolved from its content (the <img> inside it) rather
+     than stretched-then-capped as intended — and before that image has
+     loaded, a content-sized box collapses to the browser's ~2px default
+     for an unloaded replaced element, which aboutScene.js (measuring this
+     box to scale the portrait up for its desktop "big centered" intro)
+     then amplified into an enormous, off-screen portrait. An explicit
+     width removes the ambiguity regardless of image load timing. Sized
+     like a plain profile photo here, not a hero image — there's no "big
+     centered" stage to grow from on mobile any more. */
+  .about-scene__portrait {
+    width: 110px;
     margin: 0 auto;
   }
 
-  .nav__links {
+  /* No longer positioned to hover over a big portrait (there isn't one on
+     mobile) — just a normal heading in the stacked flow, right under the
+     photo. */
+  .about-scene__greeting {
+    position: static;
+    width: auto;
+    transform: none;
+    opacity: 1;
+    font-size: 1.5rem;
+    margin-top: 0.35rem;
+  }
+
+  .about-scene__copy,
+  .about-scene__facts {
+    padding: 1.1rem;
+    opacity: 1;
+    transform: none;
+  }
+
+  .about-scene__copy p {
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+
+  .about-scene__copy p + p {
+    margin-top: 0.75rem;
+  }
+
+  .about__facts li {
+    padding: 0.6rem 0;
+    font-size: 0.88rem;
+  }
+
+  .about__facts-cert img {
+    height: 44px;
+    width: 44px;
+  }
+
+  .project-slide__inner {
+    flex-direction: column;
+    padding: 1.1rem;
+    gap: 1rem;
+  }
+
+  .project-slide__body {
+    flex: none;
+  }
+
+  .project-slide__image {
+    /* In the mobile column layout, the base flex:1 1 45% (a main-axis, i.e.
+       height, basis once stacked) fights the aspect-ratio for control of
+       the image's height. Pinning to the full width and letting
+       aspect-ratio (inherited from the base rule) derive the height keeps
+       it proportional instead of stretched or clipped. */
+    flex: none;
+    width: 100%;
+  }
+
+  .project-slide__name {
+    font-size: 1.5rem;
+  }
+
+  .project-slide__description {
+    font-size: 0.92rem;
+    margin-top: 0.75rem;
+  }
+
+  .project-slide__stack {
+    margin-top: 1rem;
+  }
+
+  .timeline-slide__inner {
+    padding: 1.25rem;
+  }
+
+  .timeline-slide__index {
+    font-size: 2rem;
+  }
+
+  .timeline-slide__role {
+    font-size: 1.6rem;
+  }
+
+  .timeline-slide__summary {
+    font-size: 0.95rem;
+    margin-top: 1rem;
+  }
+
+  .interest-slide__inner {
+    padding: 1.75rem;
+  }
+
+  .interest-slide__label {
+    font-size: 1.7rem;
+  }
+
+  .interest-slide__detail {
+    font-size: 0.95rem;
+  }
+
+  .hscroll__item {
+    padding: 1rem;
+    overflow-y: auto;
+  }
+
+  /* One thin vertical bar, not a wide text drawer. This is the real
+     drawer container now (on desktop it's display: contents — see its
+     base rule — so this only takes effect here). nav__links and
+     nav__skills are its flex children: nav__links takes only the height
+     its icons actually need (flex: none), and nav__skills gets whatever's
+     left (flex: 1). That's what makes the split impossible to overlap,
+     unlike two independently-positioned elements each guessing a
+     percentage of the screen that only happens to fit some heights. */
+  .nav__mobile-panel {
+    display: flex;
+    flex-direction: column;
     position: fixed;
     top: 0;
     right: 0;
     height: 100vh;
-    width: min(78vw, 320px);
+    width: 4.5rem;
     background: rgba(9, 13, 28, 0.96);
     backdrop-filter: blur(var(--panel-blur));
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 1.75rem;
-    padding: 2rem;
-    margin: 0;
+    -webkit-backdrop-filter: blur(var(--panel-blur));
     transform: translateX(100%);
     transition: transform 0.4s var(--ease);
     border-left: 1px solid var(--panel-border);
   }
 
-  .nav--open .nav__links {
+  .nav--open .nav__mobile-panel {
     transform: translateX(0);
+  }
+
+  .nav__links {
+    flex: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.6rem;
+    padding: 5rem 0 1.5rem;
+    margin: 0;
+    width: 100%;
+  }
+
+  .nav__links a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    padding-bottom: 0;
+  }
+
+  .nav__links a::after {
+    display: none;
+  }
+
+  .nav__link-icon {
+    display: block;
+    width: 22px;
+    height: 22px;
+  }
+
+  .nav__link-text {
+    font-size: 0.62rem;
+    letter-spacing: 0.02em;
+  }
+
+  .nav__skills {
+    flex: 1;
+    min-height: 0; /* lets it shrink below its content size instead of
+      overflowing the panel if the icons above ever need more room */
+    width: 100%;
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 12%, #000 100%);
+    mask-image: linear-gradient(180deg, transparent, #000 12%, #000 100%);
+  }
+
+  .nav__skills-track {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.6rem;
+    width: 100%;
+    height: max-content;
+    padding: 1.5rem 0;
+    animation-name: nav-skills-scroll-y;
+    animation-duration: 20s;
   }
 
   .nav__burger {
@@ -823,7 +1194,6 @@ a.contact-card:hover {
 }
 
 @media (max-width: 560px) {
-  .interests,
   .contact__grid {
     grid-template-columns: 1fr 1fr;
   }

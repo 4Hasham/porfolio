@@ -2,19 +2,28 @@
 // Keeping copy here (instead of hard-coded in HTML) means the DOM-building
 // code in ui/* stays generic — it just maps over these arrays.
 
+// `icon` is a simpleicons.org slug — https://cdn.simpleicons.org/<slug>
+// serves the brand mark as an SVG, resolved by the visitor's own browser
+// (no logo files to source or store here). AWS is the one exception: Amazon
+// doesn't allow its logo into simple-icons at all (trademark policy), so
+// that entry points straight at a full `iconUrl` (devicon's CDN copy)
+// instead of a slug — see ui/render.js for how the two are told apart.
 export const skills = [
-  'Node.js',
-  'NestJS',
-  'AWS (Solutions Architect)',
-  'MongoDB',
-  'PostgreSQL',
-  'Redis',
-  'GraphQL',
-  'REST & WebSockets',
-  'Docker & Linux',
-  'CI/CD (Git)',
-  'JWT & OAuth',
-  'Test-Driven Development',
+  { name: 'Node.js', icon: 'nodedotjs' },
+  { name: 'NestJS', icon: 'nestjs' },
+  {
+    name: 'AWS',
+    iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg',
+  },
+  { name: 'MongoDB', icon: 'mongodb' },
+  { name: 'PostgreSQL', icon: 'postgresql' },
+  { name: 'Redis', icon: 'redis' },
+  { name: 'GraphQL', icon: 'graphql' },
+  { name: 'Docker', icon: 'docker' },
+  { name: 'Linux', icon: 'linux' },
+  { name: 'Git', icon: 'git' },
+  { name: 'JSON Web Tokens', icon: 'jsonwebtokens' },
+  { name: 'Socket.IO', icon: 'socketdotio' },
 ];
 
 export const timeline = [
@@ -49,6 +58,7 @@ export const projects = [
       'National weather data warehouse and B2C portal serving 50+ years of meteorological records, with secure auth and geolocation APIs for the Pakistan Meteorological Department.',
     stack: ['Node.js', 'NestJS', 'AWS Lambda', 'ECS Fargate', 'MongoDB'],
     image: '/images/pmd-hub.png',
+    url: 'https://portal.pmd.gov.pk',
   },
   {
     name: 'Candlin',
@@ -57,6 +67,7 @@ export const projects = [
       'Real-estate listings and lead-generation platform. Backend APIs, Stripe payments, third-party listing integrations (Alto, Zoopla), and n8n-driven ops automation, hosted on AWS.',
     stack: ['NestJS', 'Stripe', 'n8n', 'AWS'],
     image: '/images/candlin.png',
+    url: 'https://candlin-website.vercel.app',
   },
   {
     name: 'Broadsheet',
@@ -65,6 +76,16 @@ export const projects = [
       'News and lifestyle site for a UAE media outlet: articles, podcasts, and visual stories on a Sanity.io-powered CMS, with a ranking system driving what the homepage surfaces.',
     stack: ['Next.js', 'Sanity.io', 'Netlify'],
     image: '/images/broadsheet.png',
+    url: 'https://broadsheet-website.netlify.app/',
+  },
+  {
+    name: 'ESFC',
+    tag: 'Erasmus+ EU Project · Sole developer & architect',
+    description:
+      'EU-funded (Erasmus+) project platform built end-to-end in Next.js, taken solo from architecture through deployment.',
+    stack: ['Next.js'],
+    image: '/images/esfc.png',
+    url: 'https://esfc-project.com',
   },
 ];
 
