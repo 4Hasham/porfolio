@@ -972,41 +972,33 @@ a.contact-card:hover {
     width: 100%;
   }
 
-  /* On desktop the portrait's width comes from its 240px grid column; once
-     the grid collapses to one column it would otherwise stretch full-width
-     at its tall 3:4 aspect ratio, so cap it here instead.
-     `width`, not `max-width`: with only a max-width, this box's actual
-     width was being resolved from its content (the <img> inside it) rather
-     than stretched-then-capped as intended — and before that image has
-     loaded, a content-sized box collapses to the browser's ~2px default
-     for an unloaded replaced element, which aboutScene.js (measuring this
-     box to scale the portrait up for its desktop "big centered" intro)
-     then amplified into an enormous, off-screen portrait. An explicit
-     width removes the ambiguity regardless of image load timing. Sized
-     like a plain profile photo here, not a hero image — there's no "big
-     centered" stage to grow from on mobile any more. */
-  .about-scene__portrait {
-    width: 110px;
-    margin: 0 auto;
+  /* Both dropped on mobile entirely — not resized, not repositioned, not
+     "de-animated", just removed from the page. Both only existed to serve
+     the desktop "big portrait + greeting" scroll intro, which doesn't
+     exist on mobile any more (aboutScene.js skips its whole setup below
+     this breakpoint): without that intro, a photo and a floating "Hey!"
+     with nothing to introduce are just clutter at the top of a small
+     screen. The !important on animation/transition is a hard guarantee,
+     not a hedge — there is no code path left that should ever animate
+     anything in this section on mobile, and this makes that true
+     regardless of what future CSS gets added near it. */
+  .about-scene__portrait,
+  .about-scene__greeting {
+    display: none !important;
   }
 
-  /* No longer positioned to hover over a big portrait (there isn't one on
-     mobile) — just a normal heading in the stacked flow, right under the
-     photo. */
-  .about-scene__greeting {
-    position: static;
-    width: auto;
-    transform: none;
-    opacity: 1;
-    font-size: 1.5rem;
-    margin-top: 0.35rem;
+  .about-scene,
+  .about-scene__copy,
+  .about-scene__facts {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
   }
 
   .about-scene__copy,
   .about-scene__facts {
     padding: 1.1rem;
-    opacity: 1;
-    transform: none;
   }
 
   .about-scene__copy p {
@@ -1026,6 +1018,56 @@ a.contact-card:hover {
   .about__facts-cert img {
     height: 44px;
     width: 44px;
+  }
+
+  /* Experience/Projects/Interests stop being pinned, horizontally-dragged
+     sections here too (see horizontalScroll.js, which skips its setup
+     below this breakpoint) — same call as About, and for the same reason:
+     sliding a full-viewport card sideways in response to a vertical touch
+     scroll read as flickery and unresponsive on an actual phone, not like
+     scrolling at all, and you had to fight it by dragging each card
+     directly. A plain vertical list, scrolled normally, has none of that:
+     nothing is pinned, nothing waits on scroll math, everything is just
+     there in document flow. */
+  .hscroll.scroll-stage {
+    height: auto;
+  }
+
+  .hscroll .scroll-stage__sticky {
+    position: static;
+    height: auto;
+    overflow: visible;
+    display: block;
+    padding: 4.5rem clamp(1.25rem, 4vw, 2rem) 3rem;
+  }
+
+  .hscroll .scroll-stage__snap-marker {
+    display: none;
+  }
+
+  .hscroll__label {
+    position: static;
+    margin-bottom: 1.5rem;
+  }
+
+  .hscroll__label-count {
+    display: none; /* "1 / 3" means nothing once nothing pages */
+  }
+
+  .hscroll__track {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    height: auto;
+    transform: none !important;
+  }
+
+  .hscroll__item {
+    width: 100%;
+    height: auto;
+    padding: 0;
+    opacity: 1 !important;
+    transform: none !important;
   }
 
   .project-slide__inner {
@@ -1088,11 +1130,6 @@ a.contact-card:hover {
 
   .interest-slide__detail {
     font-size: 0.95rem;
-  }
-
-  .hscroll__item {
-    padding: 1rem;
-    overflow-y: auto;
   }
 
   /* One thin vertical bar, not a wide text drawer. This is the real
