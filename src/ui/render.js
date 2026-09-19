@@ -33,8 +33,12 @@ function renderTimeline() {
   const list = document.getElementById('timeline-list');
   timeline.forEach((entry, i) => {
     const item = el('div', 'hscroll__item timeline-slide');
+    const logo = entry.logo
+      ? `<img class="timeline-slide__logo" src="${entry.logo}" alt="${entry.org} logo" loading="lazy" />`
+      : '';
     item.innerHTML = `
       <div class="timeline-slide__inner panel">
+        ${logo}
         <span class="timeline-slide__index">0${i + 1}</span>
         <p class="timeline-slide__period">${entry.period}</p>
         <h3 class="timeline-slide__role">${entry.role}</h3>

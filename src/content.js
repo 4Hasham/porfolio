@@ -33,6 +33,7 @@ export const timeline = [
     period: 'Oct 2025 — Present',
     summary:
       'Modernized the Disaster Management Information System (DMIS) for Provincial Disaster Management Authority Sindh: automated data-ingestion pipelines, mentored two consultants, and served as the technical escalation point for the Provincial Emergency Operations Center.',
+    logo: '/images/CESVI_idXLKAMfvh_0.png',
   },
   {
     role: 'Backend Specialist',
@@ -40,13 +41,23 @@ export const timeline = [
     period: 'May 2023 — Present',
     summary:
       'Designed a custom AWS architecture centralizing global weather data streams at 99.9% uptime. Led backend development of the Pakistan Meteorological Department’s national data warehousing portal, spanning 50+ years of meteorological records.',
+    logo: '/images/00_WW_LOGOMARK.png',
   },
   {
-    role: 'CRM Developer',
+    role: 'Full Stack Web Developer',
     org: 'Esper Solutions',
-    period: 'Jul 2022 — Apr 2023',
+    period: 'Jul 2022 — May 2023',
     summary:
-      'Owned end-to-end architecture for SuiteCRM deployments across 3 international firms, engineering core business-logic modules relied on for daily operations.',
+      'Engineered SuiteCRM deployments across 3 international firms and wrote core business-logic addons, plus integrated client-owned Drupal sites with existing CRM software.',
+    logo: '/images/esper.png',
+  },
+  {
+    role: 'Software Consultant',
+    org: 'BARO',
+    period: 'Sep 2020 — Nov 2020',
+    summary:
+      'Built the landing page for a new company website and a multi-step customer onboarding form, both in Angular using Angular Forms.',
+    logo: '/images/baro_vehicles_ltd_logo.jpg',
   },
 ];
 

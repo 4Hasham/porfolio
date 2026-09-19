@@ -46,14 +46,17 @@ html {
      scrolling (jitter, or scrolling that "wouldn't respond"), because any
      JS approach either fights native momentum or has to fully block native
      scroll input to stay in control.
-     `proximity`, not `mandatory`: mandatory reproducibly made scrolling
-     stop responding entirely after the first snap, under repeated testing,
-     even with correct snap points and no position:sticky conflict — a
-     lock is a worse failure than an imperfect settle, so proximity (which
-     never showed that failure) is the safer trade. It only pulls the page
-     to a snap point when a scroll naturally comes to rest near one, rather
-     than forcing every scroll to resolve onto one. */
-  scroll-snap-type: y proximity;
+     Currently `mandatory`: an earlier attempt at this locked scrolling
+     entirely after the first snap under automated testing, so this backed
+     off to the softer `proximity` (never locks, but doesn't always fully
+     settle). Since then, that same automated wheel-simulation tool was
+     caught producing other false "stuck" results that didn't reflect
+     reality once checked against a proper continuous scroll gesture — so
+     the lock result is suspect too, and worth a real test on actual
+     hardware rather than trusting the tool a second time. If scrolling
+     ever stops responding on a real trackpad/mouse, that's a real
+     regression — change this one word back to `proximity`. */
+  scroll-snap-type: y mandatory;
 }
 
 body {
@@ -356,6 +359,12 @@ ol {
   padding: 6rem clamp(1.25rem, 4vw, 3rem);
   max-width: 780px;
   margin: 0 auto;
+  /* Every other section has a scroll-snap-align target (see .scroll-stage).
+     Hero didn't, so under `scroll-snap-type: y mandatory` there was no valid
+     place for the browser to rest here — any small scroll immediately got
+     yanked forward into About. Same fix applied to .section--contact at the
+     other end for the same reason. */
+  scroll-snap-align: start;
 }
 
 .hero__kicker {
@@ -578,9 +587,10 @@ ol {
 }
 
 .about__facts-cert img {
+  display: block;
   height: 52px;
   width: 52px;
-  margin-top: 0.3rem;
+  margin: 0.3rem auto 0;
   border-radius: 10px;
 }
 
@@ -745,9 +755,22 @@ ol {
    ========================================================================== */
 
 .timeline-slide__inner {
+  position: relative;
   max-width: 640px;
   padding: clamp(2rem, 4vw, 3rem);
   border-radius: var(--radius-lg);
+}
+
+.timeline-slide__logo {
+  position: absolute;
+  top: clamp(1.25rem, 3vw, 2rem);
+  right: clamp(1.25rem, 3vw, 2rem);
+  height: 48px;
+  width: 48px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #fff;
+  padding: 6px;
 }
 
 .timeline-slide__index {
@@ -879,6 +902,10 @@ a.project-slide__inner:hover {
 /* ==========================================================================
    Contact
    ========================================================================== */
+
+.section--contact {
+  scroll-snap-align: start;
+}
 
 .section--contact .contact__lead {
   color: var(--color-ink-soft);
@@ -1105,6 +1132,13 @@ a.contact-card:hover {
 
   .timeline-slide__inner {
     padding: 1.25rem;
+  }
+
+  .timeline-slide__logo {
+    top: 1rem;
+    right: 1rem;
+    height: 36px;
+    width: 36px;
   }
 
   .timeline-slide__index {
