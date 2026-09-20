@@ -63,15 +63,6 @@ export const timeline = [
 
 export const projects = [
   {
-    name: 'PMD Weather Portal',
-    tag: 'WeatherWalay',
-    description:
-      'National weather data warehouse and B2C portal serving 50+ years of meteorological records, with secure auth and geolocation APIs for the Pakistan Meteorological Department.',
-    stack: ['Node.js', 'NestJS', 'AWS Lambda', 'ECS Fargate', 'MongoDB'],
-    image: '/images/pmd-hub.png',
-    url: 'https://portal.pmd.gov.pk',
-  },
-  {
     name: 'Candlin',
     tag: 'Client project · Sole developer & architect',
     description:
@@ -82,12 +73,12 @@ export const projects = [
   },
   {
     name: 'Broadsheet',
-    tag: 'Client project',
+    tag: 'Personal product · Founder & sole developer',
     description:
-      'News and lifestyle site for a UAE media outlet: articles, podcasts, and visual stories on a Sanity.io-powered CMS, with a ranking system driving what the homepage surfaces.',
-    stack: ['Next.js', 'Sanity.io', 'Netlify'],
-    image: '/images/broadsheet.png',
-    url: 'https://broadsheet-website.netlify.app/',
+      'A production-ready Next.js 16 + Sanity CMS boilerplate with the article types, layout system, and editorial schema already built — so publishers ship the publication, not the plumbing.',
+    stack: ['Next.js 16', 'Sanity CMS'],
+    image: '/images/logo_dark.png',
+    url: 'https://broadsheetkit.com',
   },
   {
     name: 'ESFC',
@@ -97,6 +88,15 @@ export const projects = [
     stack: ['Next.js'],
     image: '/images/esfc.png',
     url: 'https://esfc-project.com',
+  },
+  {
+    name: 'PMD Weather Portal',
+    tag: 'WeatherWalay',
+    description:
+      'National weather data warehouse and B2C portal serving 50+ years of meteorological records, with secure auth and geolocation APIs for the Pakistan Meteorological Department.',
+    stack: ['Node.js', 'NestJS', 'AWS Lambda', 'ECS Fargate', 'MongoDB'],
+    image: '/images/pmd-hub.png',
+    url: 'https://portal.pmd.gov.pk',
   },
 ];
 
