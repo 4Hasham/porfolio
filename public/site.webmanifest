@@ -1,0 +1,13 @@
+{
+  "name": "Hasham Ali — Backend Engineer",
+  "short_name": "Hasham Ali",
+  "description": "Backend Engineer & AWS Certified Solutions Architect based in Islamabad, Pakistan.",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#101a2e",
+  "theme_color": "#101a2e",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

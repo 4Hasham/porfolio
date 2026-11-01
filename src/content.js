@@ -63,6 +63,15 @@ export const timeline = [
 
 export const projects = [
   {
+    name: 'atomSphere',
+    tag: 'Personal product · Founder & sole developer',
+    description:
+      'See the house before you buy it. Turns a property’s floorplan into an explorable 3D house — walk inside, floor by floor, at real size, on its real plot and terrain — shared as a link on WhatsApp. AI floorplan reading, plus AI-generated furniture and props to stage it.',
+    stack: ['React Three Fiber', 'AWS Lambda', 'DynamoDB', 'Modal', 'Hunyuan3D'],
+    image: '/images/atomsphere.jpg',
+    url: 'https://atomsphere.app',
+  },
+  {
     name: 'Candlin',
     tag: 'Client project · Sole developer & architect',
     description:

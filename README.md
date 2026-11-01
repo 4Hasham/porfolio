@@ -14,6 +14,11 @@ npm run dev      # dev server with hot reload
 npm run build    # production build to dist/
 ```
 
+Copy `.env.example` to `.env` (or set the same variables on the host) before
+building: `VITE_SITE_URL` fills the canonical / Open Graph URLs and generates
+`robots.txt` + `sitemap.xml`, and `VITE_GA_MEASUREMENT_ID` turns on Google
+Analytics. Both are handled in `vite.config.js`.
+
 ## How it's put together
 
 ```
